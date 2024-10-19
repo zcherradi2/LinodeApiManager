@@ -167,8 +167,6 @@ class LinodeController:
 
 
         return response.status_code == 200
-auth = 'e9193c60d46342469dec04943265fb5a24565c8c4a1de0992d02a4160f2add6a'
-controller = LinodeController(auth)
 class LinodeInstance:
     def __init__(self, id: int, label: str, group: str, status: str, created: str, updated: str, type: str,
                  ipv4: List[str], ipv6: str, image: str, region: str, site_type: str, specs: Dict[str, int],
@@ -270,16 +268,18 @@ class LinodeInstance:
             lke_cluster_id = data['lke_cluster_id']
             )
 class LinodeManager:
-    def __init__(self) -> None:
+    def __init__(self,auth) -> None:
+        self.auth =auth
+        self.controller = LinodeController(auth)
         self.instances = []
         self.getInstances()
     def getInstances(self):
-        data = controller.getInstances()['data']
+        data = self.controller.getInstances()['data']
         instances = [LinodeInstance.fromData(data[i]) for i in range(len(data))]
         self.instances = instances
         return instances
     def createInstance(self,label: str, region: str = 'us-east', type: str = 'g6-nanode-1', os: str = 'linode/almalinux8', rootPass: str = 'e3af15a57b2422c'):
-        res = controller.createInstance(label,region,type,os,rootPass)
+        res = self.controller.createInstance(label,region,type,os,rootPass)
         if res:
             inst = LinodeInstance.fromData(res)
             self.instances.append(inst)
@@ -291,7 +291,7 @@ class LinodeManager:
                 return instance
         return None
     def deleteInstance(self,id):
-        if controller.deleteInstance(id):
+        if self.controller.deleteInstance(id):
             self.instances = [instance for instance in self.instances if instance.id != id]
             return True
         return False
@@ -309,9 +309,11 @@ class LinodeManager:
 # instance = instances[0]
 # print(instance.id)
 if __name__ == "__main__":
-    manager = LinodeManager()
-    i = manager._getInstanceById(65549652)
-    print(i.ipv4)
-    print(i.label)
-    print(i.changeRdns('fgewfdadad.iceage.com.my'))
-    print(i)
+    auth = 'e9193c60d46342469dec04943265fb5a24565c8c4a1de0992d02a4160f2add6a'
+    manager = LinodeManager(auth)
+    manager.getInstances()
+    # i = manager._getInstanceById(65549652)
+    # print(i.ipv4)
+    # print(i.label)
+    # print(i.changeRdns('fgewfdadad.iceage.com.my'))
+    # print(i)
