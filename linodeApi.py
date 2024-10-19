@@ -308,9 +308,10 @@ class LinodeManager:
 # instances = [LinodeInstance(**data[i]) for i in range(num)]
 # instance = instances[0]
 # print(instance.id)
-manager = LinodeManager()
-i = manager._getInstanceById(65549652)
-print(i.ipv4)
-print(i.label)
-print(i.changeRdns('fgewfdadad.iceage.com.my'))
-print(i)
+if __name__ == "__main__":
+    manager = LinodeManager()
+    i = manager._getInstanceById(65549652)
+    print(i.ipv4)
+    print(i.label)
+    print(i.changeRdns('fgewfdadad.iceage.com.my'))
+    print(i)
