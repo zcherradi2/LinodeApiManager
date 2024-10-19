@@ -1,5 +1,7 @@
 from typing import List, Optional, Dict
-from PrivateModule import myRequest
+import requests
+
+myRequest = requests.Session()
 
 class LinodeController:
     def __init__(self,auth) -> None:
