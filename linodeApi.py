@@ -172,7 +172,7 @@ class LinodeInstance:
                  ipv4: List[str], ipv6: str, image: str, region: str, site_type: str, specs: Dict[str, int],
                  alerts: Dict[str, int], backups: Dict[str, Optional[bool]], hypervisor: str, watchdog_enabled: bool,
                  tags: List[str], host_uuid: str, has_user_data: bool, placement_group: Optional[str], 
-                 lke_cluster_id: Optional[str]):
+                 lke_cluster_id: Optional[str],manager):
         self.id = id
         self.label = label
         self.group = group
@@ -195,6 +195,8 @@ class LinodeInstance:
         self.has_user_data = has_user_data
         self.placement_group = placement_group
         self.lke_cluster_id = lke_cluster_id
+        self.manager = manager
+        self.controller = manager.controller
 
     def __repr__(self):
         return (f"LinodeInstance(id={self.id}, label={self.label}, group={self.group}, status={self.status}, "
@@ -228,21 +230,21 @@ class LinodeInstance:
         self.placement_group = newData['placement_group'],
         self.lke_cluster_id = newData['lke_cluster_id']
     def update(self):
-        newData = controller.getInstance(self.id)
+        newData = self.controller.getInstance(self.id)
         self.setValues(newData)
     def delete(self):
-        return controller.deleteInstance(self.id)
+        return self.controller.deleteInstance(self.id)
     def changeRdns(self,domain):
-        return controller.setRdns(self.id,self.ipv4[0],domain)
+        return self.controller.setRdns(self.id,self.ipv4[0],domain)
     def setLabel(self,newLabel):
-        newData = controller.updateInstance(self.id,newLabel)
+        newData = self.controller.updateInstance(self.id,newLabel)
         self.setValues(newData)
     def resetRootPass(self,newpass):
-        return controller.resetRootPass(self.id,newpass)
+        return self.controller.resetRootPass(self.id,newpass)
     def boot(self):
-        return controller.bootInstance(self.id)
+        return self.controller.bootInstance(self.id)
     @classmethod
-    def fromData(cls,data):
+    def fromData(cls,data,manager):
         return LinodeInstance(
             id = data['id'],
             label = data["label"],
@@ -265,7 +267,8 @@ class LinodeInstance:
             host_uuid = data['host_uuid'],
             has_user_data = data['has_user_data'],
             placement_group = data['placement_group'],
-            lke_cluster_id = data['lke_cluster_id']
+            lke_cluster_id = data['lke_cluster_id'],
+            controller=manager
             )
 class LinodeManager:
     def __init__(self,auth) -> None:
