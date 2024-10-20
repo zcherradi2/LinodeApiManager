@@ -171,7 +171,10 @@ if __name__ == '__main__':
     controller = LinodeController('e9193c60d46342469dec04943265fb5a24565c8c4a1de0992d02a4160f2add6a')
 
     id = 65548889
-    print(controller.getInstances())
+    # print(controller.getInstances())
+    reg = controller.getRegions()
+    niceReg = [{'id':region['id'],'label':region['label']} for region in reg]
+    print(niceReg)
     # i = controller.getInstance(id)
     # print(i)
     
