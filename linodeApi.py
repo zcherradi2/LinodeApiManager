@@ -268,23 +268,35 @@ class LinodeInstance:
             has_user_data = data['has_user_data'],
             placement_group = data['placement_group'],
             lke_cluster_id = data['lke_cluster_id'],
-            controller=manager
+            manager=manager
             )
+    def toJson(self):
+        return {
+            'id':self.id,
+            'label':self.label,
+            'status':self.status,
+            'type':self.type,
+            'ip':self.ipv4[0],
+            'image':self.image,
+            'region':self.region,
+        }
 class LinodeManager:
     def __init__(self,auth) -> None:
         self.auth =auth
         self.controller = LinodeController(auth)
         self.instances = []
         self.getInstances()
-    def getInstances(self):
+    def getInstances(self,json=False):
         data = self.controller.getInstances()['data']
-        instances = [LinodeInstance.fromData(data[i]) for i in range(len(data))]
+        instances = [LinodeInstance.fromData(data[i],self) for i in range(len(data))]
         self.instances = instances
-        return instances
+        if not json:
+            return instances
+        return [inst.toJson() for inst in instances]
     def createInstance(self,label: str, region: str = 'us-east', type: str = 'g6-nanode-1', os: str = 'linode/almalinux8', rootPass: str = 'e3af15a57b2422c'):
         res = self.controller.createInstance(label,region,type,os,rootPass)
         if res:
-            inst = LinodeInstance.fromData(res)
+            inst = LinodeInstance.fromData(res,self)
             self.instances.append(inst)
             return inst
         return None
@@ -314,7 +326,11 @@ class LinodeManager:
 if __name__ == "__main__":
     auth = 'e9193c60d46342469dec04943265fb5a24565c8c4a1de0992d02a4160f2add6a'
     manager = LinodeManager(auth)
-    manager.getInstances()
+    instances = manager.getInstances()
+    ipt = ''
+    while ipt!= 'exit':
+        ipt = input('')
+        eval(ipt)
     # i = manager._getInstanceById(65549652)
     # print(i.ipv4)
     # print(i.label)
