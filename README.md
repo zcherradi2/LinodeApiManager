@@ -29,3 +29,34 @@ Then serve `www/` with PHP and point it at the API. The Linode token is passed a
 
 - Pagination is explicit (`page_size=100`) so a large account does not silently return the first page only.
 - The systemd unit in `setupLinodeApi.sh` is the reason this can run unattended on a 5-dollar box.
+
+## Stack
+
+Python 3, Flask, the `requests` session API, PHP for the front end, systemd for the service. No
+database: Linode itself is the only state.
+
+## Example
+
+The controller returns Linode's own JSON, trimmed by the caller. A single instance looks like this:
+
+```json
+{
+  "id": 48211903,
+  "label": "web-01",
+  "region": "eu-west",
+  "type": "g6-nanode-1",
+  "status": "running",
+  "ipv4": ["139.162.xxx.xxx"],
+  "specs": { "vcpus": 1, "memory": 1024, "disk": 25600 }
+}
+```
+
+Calling it directly, once the API is running:
+
+```bash
+curl -s http://localhost:5000/instances | python -m json.tool | head -20
+```
+
+## Status and licence
+
+Working, used to manage real instances. No licence file yet: all rights reserved until one appears.
